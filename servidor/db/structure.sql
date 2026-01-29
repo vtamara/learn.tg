@@ -1,6 +1,7 @@
 SET statement_timeout = 0;
 SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
+SET transaction_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
@@ -193,6 +194,35 @@ CREATE PROCEDURE public.cor1440_gen_recalcular_poblacion_actividad(IN par_activi
 
 
 --
+-- Name: course_usuario_timestamps(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.course_usuario_timestamps() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    -- Para inserciones (INSERT)
+    IF TG_OP = 'INSERT' THEN
+        -- Si created_at no fue proporcionado, establecer a ahora
+        IF NEW.created_at IS NULL THEN
+            NEW.created_at = NOW();
+        END IF;
+        -- Siempre establecer updated_at a ahora en inserción
+        NEW.updated_at = NOW();
+
+    -- Para actualizaciones (UPDATE)
+    ELSIF TG_OP = 'UPDATE' THEN
+        -- Nunca modificar created_at en actualizaciones
+        -- Solo actualizar updated_at
+        NEW.updated_at = NOW();
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
+
+
+--
 -- Name: f_unaccent(text); Type: FUNCTION; Schema: public; Owner: -
 --
 
@@ -201,6 +231,35 @@ CREATE FUNCTION public.f_unaccent(text) RETURNS text
     AS $_$
       SELECT public.unaccent('public.unaccent', $1)  
       $_$;
+
+
+--
+-- Name: guide_usuario_timestamps(); Type: FUNCTION; Schema: public; Owner: -
+--
+
+CREATE FUNCTION public.guide_usuario_timestamps() RETURNS trigger
+    LANGUAGE plpgsql
+    AS $$
+BEGIN
+    -- Para inserciones (INSERT)
+    IF TG_OP = 'INSERT' THEN
+        -- Si created_at no fue proporcionado, establecer a ahora
+        IF NEW.created_at IS NULL THEN
+            NEW.created_at = NOW();
+        END IF;
+        -- Siempre establecer updated_at a ahora en inserción
+        NEW.updated_at = NOW();
+
+    -- Para actualizaciones (UPDATE)
+    ELSIF TG_OP = 'UPDATE' THEN
+        -- Nunca modificar created_at en actualizaciones
+        -- Solo actualizar updated_at
+        NEW.updated_at = NOW();
+    END IF;
+
+    RETURN NEW;
+END;
+$$;
 
 
 --
@@ -1312,7 +1371,10 @@ CREATE TABLE public.billetera_usuario (
     usuario_id integer NOT NULL,
     token character varying(256),
     created_at timestamp(6) without time zone NOT NULL,
-    updated_at timestamp(6) without time zone NOT NULL
+    updated_at timestamp(6) without time zone NOT NULL,
+    answer_fib character varying,
+    nonce character varying(255),
+    nonce_expires_at timestamp with time zone
 );
 
 
@@ -2712,6 +2774,37 @@ ALTER SEQUENCE public.cor1440_gen_tipomoneda_id_seq OWNED BY public.cor1440_gen_
 
 
 --
+-- Name: course_usuario; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.course_usuario (
+    usuario_id integer NOT NULL,
+    proyectofinanciero_id integer NOT NULL,
+    points integer NOT NULL,
+    guidespoints numeric,
+    amountscholarship numeric,
+    percentagecompleted numeric,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone
+);
+
+
+--
+-- Name: guide_usuario; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.guide_usuario (
+    usuario_id integer NOT NULL,
+    actividadpf_id integer NOT NULL,
+    amountpaid integer NOT NULL,
+    profilescore integer NOT NULL,
+    points integer NOT NULL,
+    created_at timestamp without time zone,
+    updated_at timestamp without time zone
+);
+
+
+--
 -- Name: heb412_gen_campohc; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -3023,6 +3116,26 @@ CREATE SEQUENCE public.heb412_gen_plantillahcr_id_seq
 --
 
 ALTER SEQUENCE public.heb412_gen_plantillahcr_id_seq OWNED BY public.heb412_gen_plantillahcr.id;
+
+
+--
+-- Name: kysely_migration; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.kysely_migration (
+    name character varying(255) NOT NULL,
+    "timestamp" character varying(255) NOT NULL
+);
+
+
+--
+-- Name: kysely_migration_lock; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.kysely_migration_lock (
+    id character varying(255) NOT NULL,
+    is_locked integer DEFAULT 0 NOT NULL
+);
 
 
 --
@@ -4627,12 +4740,111 @@ ALTER SEQUENCE public.nonce_id_seq OWNED BY public.nonce.id;
 
 
 --
+-- Name: religion; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.religion (
+    id bigint NOT NULL,
+    nombre character varying(500) NOT NULL COLLATE public.es_co_utf_8,
+    observaciones character varying(5000),
+    fechacreacion date NOT NULL,
+    fechadeshabilitacion date,
+    created_at timestamp(6) without time zone NOT NULL,
+    updated_at timestamp(6) without time zone NOT NULL
+);
+
+
+--
+-- Name: religion_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.religion_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: religion_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.religion_id_seq OWNED BY public.religion.id;
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.schema_migrations (
     version character varying(255) NOT NULL
 );
+
+
+--
+-- Name: ubitransactions; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.ubitransactions (
+    id integer NOT NULL,
+    wallet character varying(42) NOT NULL,
+    amount numeric(30,18) NOT NULL,
+    hash character varying(66) NOT NULL,
+    date timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: ubitransactions_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.ubitransactions_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: ubitransactions_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.ubitransactions_id_seq OWNED BY public.ubitransactions.id;
+
+
+--
+-- Name: userevent; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.userevent (
+    id bigint NOT NULL,
+    usuario_id integer,
+    event_type character varying(30) NOT NULL,
+    event_data jsonb,
+    created_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: userevent_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.userevent_id_seq
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: userevent_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.userevent_id_seq OWNED BY public.userevent.id;
 
 
 --
@@ -4682,6 +4894,13 @@ CREATE TABLE public.usuario (
     foto_content_type character varying,
     foto_file_size bigint,
     foto_updated_at timestamp without time zone,
+    religion_id integer,
+    pais_id integer,
+    passport_name character varying(127),
+    passport_nationality integer,
+    profilescore integer,
+    lastgooddollarverification timestamp without time zone,
+    learningscore integer,
     CONSTRAINT usuario_check CHECK (((fechadeshabilitacion IS NULL) OR (fechadeshabilitacion >= fechacreacion))),
     CONSTRAINT usuario_rol_check CHECK ((rol >= 1))
 );
@@ -5213,6 +5432,27 @@ ALTER TABLE ONLY public.nonce ALTER COLUMN id SET DEFAULT nextval('public.nonce_
 
 
 --
+-- Name: religion id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.religion ALTER COLUMN id SET DEFAULT nextval('public.religion_id_seq'::regclass);
+
+
+--
+-- Name: ubitransactions id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ubitransactions ALTER COLUMN id SET DEFAULT nextval('public.ubitransactions_id_seq'::regclass);
+
+
+--
+-- Name: userevent id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.userevent ALTER COLUMN id SET DEFAULT nextval('public.userevent_id_seq'::regclass);
+
+
+--
 -- Name: cor1440_gen_actividad_rangoedadac actividad_rangoedadac_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -5586,6 +5826,22 @@ ALTER TABLE ONLY public.heb412_gen_plantillahcm
 
 ALTER TABLE ONLY public.heb412_gen_plantillahcr
     ADD CONSTRAINT heb412_gen_plantillahcr_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: kysely_migration_lock kysely_migration_lock_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.kysely_migration_lock
+    ADD CONSTRAINT kysely_migration_lock_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: kysely_migration kysely_migration_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.kysely_migration
+    ADD CONSTRAINT kysely_migration_pkey PRIMARY KEY (name);
 
 
 --
@@ -6053,6 +6309,38 @@ ALTER TABLE ONLY public.cor1440_gen_rangoedadac
 
 
 --
+-- Name: religion religion_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.religion
+    ADD CONSTRAINT religion_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: ubitransactions ubitransactions_hash_key; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ubitransactions
+    ADD CONSTRAINT ubitransactions_hash_key UNIQUE (hash);
+
+
+--
+-- Name: ubitransactions ubitransactions_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.ubitransactions
+    ADD CONSTRAINT ubitransactions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: userevent userevent_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.userevent
+    ADD CONSTRAINT userevent_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: usuario usuario_nusuario_key; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -6423,6 +6711,20 @@ CREATE TRIGGER cor1440_gen_recalcular_tras_cambiar_asistencia AFTER INSERT OR DE
 --
 
 CREATE TRIGGER cor1440_gen_recalcular_tras_cambiar_persona AFTER UPDATE ON public.msip_persona FOR EACH ROW EXECUTE FUNCTION public.cor1440_gen_persona_cambiada();
+
+
+--
+-- Name: course_usuario course_usuario_timestamps_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER course_usuario_timestamps_trigger BEFORE INSERT OR UPDATE ON public.course_usuario FOR EACH ROW EXECUTE FUNCTION public.course_usuario_timestamps();
+
+
+--
+-- Name: guide_usuario guide_usuario_timestamps_trigger; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER guide_usuario_timestamps_trigger BEFORE INSERT OR UPDATE ON public.guide_usuario FOR EACH ROW EXECUTE FUNCTION public.guide_usuario_timestamps();
 
 
 --
@@ -6901,6 +7203,14 @@ ALTER TABLE ONLY public.cor1440_gen_actividad
 
 ALTER TABLE ONLY public.cor1440_gen_informeauditoria
     ADD CONSTRAINT fk_rails_44cf03d3e2 FOREIGN KEY (proyectofinanciero_id) REFERENCES public.cor1440_gen_proyectofinanciero(id);
+
+
+--
+-- Name: usuario fk_rails_4649f3efec; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.usuario
+    ADD CONSTRAINT fk_rails_4649f3efec FOREIGN KEY (pais_id) REFERENCES public.msip_pais(id);
 
 
 --
@@ -7520,6 +7830,14 @@ ALTER TABLE ONLY public.cor1440_gen_actividad_orgsocial
 
 
 --
+-- Name: usuario fk_rails_ee8a18179f; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.usuario
+    ADD CONSTRAINT fk_rails_ee8a18179f FOREIGN KEY (religion_id) REFERENCES public.religion(id);
+
+
+--
 -- Name: msip_orgsocial_sectororgsocial fk_rails_f032bb21a6; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -7790,6 +8108,11 @@ ALTER TABLE ONLY public.usuario
 SET search_path TO "$user", public;
 
 INSERT INTO "schema_migrations" (version) VALUES
+('20251029074157'),
+('20251015091623'),
+('20250826014211'),
+('20250728005208'),
+('20250728001345'),
 ('20250722101020'),
 ('20250721002737'),
 ('20250701233327'),

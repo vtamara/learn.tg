@@ -27,23 +27,20 @@ caminando sobre el lago")
 
 ## 1. Comprensión de lectura.
 
-1. Dos paisajes mencionados en esta lectura: ___ y ___
-2. ¿Adónde envió Jesús a sus discípulos? ___ 
-3. ¿Qué fue a hacer Jesús solo después de despedir a la gente y a sus 
-  discípulos?  ____
-4. La cuarta vigilia de la noche significa de 3AM a 6AM, suponiendo que fueran
-  las 3:00 AM cuando Jesús quiso partir y que envió a sus discípulos a Betsaida a
-  las 6:00 PM, ¿cuánto tiempo estuvieron remando sus discípulos? ___
-5. Al ver a sus discípulos angustiados, Jesús se acercó a la barca donde estaban
-  ____ sobre el ____
-6. Los discípulos gritaron porque pensaron que el que caminaba sobre el lago era
-  un ____
-7. Como los discípulos se asustaron, Jesús les dijo: “¡Ánimo! 
-  ¡Soy yo! ____ ____  ____
-8. Entonces Jesús subió a la barca con ellos y además el viento ____
-9. Si lees el pasaje anterior a este en la Biblia, se trata de la 
-  multiplicación milagros del pan, los discípulos no podían entender eso 
-  y sus corazones estaban ____
+1. El ___ es un paisaje mencionados en el versículo 46 (monte)
+2. Según el versículo 45, Jesús había enviado a sus discípulos a ___ (Betsaida)
+3. Tras despedir a la gente y a sus discípulos Jesús fue a ___. Versículo 46. (orar)
+4. Al ver a sus discípulos angustiados, Jesús se acercó a la barca donde 
+   estaban, ___ sobre el mar. Versículo 48. (andando)
+5. Los discípulos gritaron porque pensaron que el que caminaba sobre el 
+   lago era un ___  Versículo 49. (fantasma)
+6. Como los discípulos se asustaron, Jesús les dijo: "¡Tened ánimo; yo soy, 
+   no ___!" --sin tilde.  Versículo 50. (temais)
+7. Entonces Jesús subió a la barca con ellos y además el viento 
+   se ___ --sin tilde. Versículo 51. (calmo)
+8. Si lees el pasaje anterior a este en la Biblia, se trata de una
+  multiplicación milagrosa del pan, los discípulos no podían entender eso 
+  y sus corazones estaban ___ Versículo 52. (endurecidos)
 
 ## 2. Reflexión
 
